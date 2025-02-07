@@ -29,7 +29,7 @@ if uploaded_file and question and hf_api_key:
     article = uploaded_file.read().decode()
 
     # Set up the HuggingFace model inference using HuggingFaceEndpoint
-    model_id = "gpt2"  # You can replace this with your desired HuggingFace model (e.g., GPT-3, GPT-Neo, etc.)
+    model_id = "mistralai/Mistral-7B-Instruct-v0.3"  # You can replace this with your desired HuggingFace model (e.g., GPT-3, GPT-Neo, etc.)
     hf = HuggingFaceEndpoint(
         repo_id=model_id,
         task="text-generation",  # Specifying the task type as text generation
