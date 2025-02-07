@@ -46,7 +46,7 @@ def process_csv(file):
     # Check if both columns contain text
     if 'Question' in df.columns and 'Answer' in df.columns:
         # Combine both columns into one string with a separator (e.g., newline)
-        combined_text = "\n\n".join(df['column1'].dropna().astype(str) + " " + df['column2'].dropna().astype(str))
+        combined_text = "\n\n".join(df['Question'].dropna().astype(str) + " " + df['Answer'].dropna().astype(str))
         return combined_text
     else:
         # Fallback: If the columns are not named 'column1' and 'column2', try the first two columns
