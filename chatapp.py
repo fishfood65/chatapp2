@@ -43,7 +43,7 @@ def process_csv(file):
     df = pd.read_csv(file)
     
     # Print the columns of the CSV file to debug
-    st.write("CSV Columns:", df.columns.tolist())
+    # st.write("CSV Columns:", df.columns.tolist())
     
     # Check if both 'Question' and 'Answer' columns exist
     if 'Question' in df.columns and 'Answer' in df.columns:
