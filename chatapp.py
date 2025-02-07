@@ -39,9 +39,19 @@ if uploaded_files and question and not hf_api_key:
 # Function to process CSV file content
 def process_csv(file):
     df = pd.read_csv(file)
-    # Assuming the CSV has a column 'text' containing the article content
-    # If your CSV has a different structure, adjust accordingly.
-    return "\n\n".join(df['text'].dropna().tolist())
+    
+    # Print the columns of the CSV file to debug
+    st.write("CSV Columns:", df.columns.tolist())
+    
+    # Check if both columns contain text
+    if 'Question' in df.columns and 'Answer' in df.columns:
+        # Combine both columns into one string with a separator (e.g., newline)
+        combined_text = "\n\n".join(df['column1'].dropna().astype(str) + " " + df['column2'].dropna().astype(str))
+        return combined_text
+    else:
+        # Fallback: If the columns are not named 'column1' and 'column2', try the first two columns
+        combined_text = "\n\n".join(df.iloc[:, 0].dropna().astype(str) + " " + df.iloc[:, 1].dropna().astype(str))
+        return combined_text
 
 # If both files, question, and API key are provided
 if uploaded_files and question and hf_api_key:
