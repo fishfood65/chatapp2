@@ -20,6 +20,7 @@ def get_llm_hf_inference(model_id=model_id, max_new_tokens=128, temperature=0.1)
     """
     llm = HuggingFaceEndpoint(
         repo_id=model_id,
+        task="text-generation",  # Specify the task type
         max_new_tokens=max_new_tokens,
         temperature=temperature,
         token = os.getenv("HF_TOKEN")
