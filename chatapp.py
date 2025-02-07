@@ -36,6 +36,8 @@ question = st.text_input(
 if uploaded_files and question and not hf_api_key:
     st.info("Please add your HuggingFace API key to the environment variables to continue.")
 
+import pandas as pd
+
 # Function to process CSV file content
 def process_csv(file):
     df = pd.read_csv(file)
@@ -43,14 +45,18 @@ def process_csv(file):
     # Print the columns of the CSV file to debug
     st.write("CSV Columns:", df.columns.tolist())
     
-    # Check if both columns contain text
+    # Check if both 'Question' and 'Answer' columns exist
     if 'Question' in df.columns and 'Answer' in df.columns:
-        # Combine both columns into one string with a separator (e.g., newline)
-        combined_text = "\n\n".join(df['Question'].dropna().astype(str) + " " + df['Answer'].dropna().astype(str))
+        # Handle missing values and ensure the columns are treated as strings
+        combined_text = "\n\n".join(
+            df['Question'].fillna("").astype(str) + " " + df['Answer'].fillna("").astype(str)
+        )
         return combined_text
     else:
-        # Fallback: If the columns are not named 'column1' and 'column2', try the first two columns
-        combined_text = "\n\n".join(df.iloc[:, 0].dropna().astype(str) + " " + df.iloc[:, 1].dropna().astype(str))
+        # Fallback: Use the first two columns if 'Question' and 'Answer' are not found
+        combined_text = "\n\n".join(
+            df.iloc[:, 0].fillna("").astype(str) + " " + df.iloc[:, 1].fillna("").astype(str)
+        )
         return combined_text
 
 # If both files, question, and API key are provided
