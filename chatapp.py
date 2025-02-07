@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain_huggingface import HuggingFaceEndpoint
 import os
+import pandas as pd
 
 st.title("📝 File Q&A with HuggingFace")
 
@@ -12,21 +13,52 @@ with st.sidebar:
     "[View the source code](https://github.com/streamlit/llm-examples/blob/main/pages/1_File_Q%26A.py)"
     "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
 
-# File upload and question input
-uploaded_file = st.file_uploader("Upload an article", type=("txt", "md"))
+# Allow multiple file uploads (between 1 and 10 files) including CSV, TXT, and MD
+uploaded_files = st.file_uploader("Upload articles", type=("txt", "md", "csv"), accept_multiple_files=True)
+
+# Check if the number of files uploaded is between 12 and 10
+if uploaded_files:
+    if len(uploaded_files) < 1 or len(uploaded_files) > 10:
+        st.warning("Please upload between 1 and 10 files.")
+    else:
+        st.write(f"Uploaded {len(uploaded_files)} files.")
+else:
+    st.warning("Please upload between 1 and 10 files.")
+
+# Question input
 question = st.text_input(
-    "Ask something about the article",
+    "Ask something about the articles",
     placeholder="Can you give me a short summary?",
-    disabled=not uploaded_file,
+    disabled=not uploaded_files,
 )
 
 # Check if the API key is missing
-if uploaded_file and question and not hf_api_key:
+if uploaded_files and question and not hf_api_key:
     st.info("Please add your HuggingFace API key to the environment variables to continue.")
 
-# If both file and question are provided and API key is available
-if uploaded_file and question and hf_api_key:
-    article = uploaded_file.read().decode()
+# Function to process CSV file content
+def process_csv(file):
+    df = pd.read_csv(file)
+    # Assuming the CSV has a column 'text' containing the article content
+    # If your CSV has a different structure, adjust accordingly.
+    return "\n\n".join(df['text'].dropna().tolist())
+
+# If both files, question, and API key are provided
+if uploaded_files and question and hf_api_key:
+    combined_article = ""
+    
+    # Combine the content of all uploaded files
+    for file in uploaded_files:
+        file_type = file.name.split('.')[-1]
+        
+        if file_type == 'csv':
+            # Process CSV files
+            combined_article += process_csv(file)
+        else:
+            # Process text and markdown files
+            combined_article += file.read().decode()
+        
+        combined_article += "\n\n"  # Separate articles with a newline for clarity
 
     # Set up the HuggingFace model inference using HuggingFaceEndpoint
     model_id = "mistralai/Mistral-7B-Instruct-v0.3"  # You can replace this with your desired HuggingFace model (e.g., GPT-3, GPT-Neo, etc.)
@@ -39,11 +71,11 @@ if uploaded_file and question and hf_api_key:
     )
 
     # Prepare the prompt for the question
-    prompt = f"Here is an article:\n\n{article}\n\nQuestion: {question}\nAnswer:"
+    prompt = f"Here are some articles:\n\n{combined_article}\n\nQuestion: {question}\nAnswer:"
 
     # Get the response from the model
     response = hf(prompt)
 
     # Display the response
     st.write("### Answer")
-    st.write(response)
+    st.write(response)  # Directly display the string response from the model
