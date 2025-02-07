@@ -46,4 +46,4 @@ if uploaded_file and question and hf_api_key:
 
     # Display the response
     st.write("### Answer")
-    st.write(response['generated_text'])
+    st.write(response)
